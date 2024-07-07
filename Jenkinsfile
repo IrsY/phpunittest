@@ -17,11 +17,17 @@ pipeline {
         stage('Run PHPUnit Tests') {
             steps {
                 // Run PHPUnit tests
-                sh 'vendor/bin/phpunit --configuration src/tests/phpunit.xml'
+                sh 'vendor/bin/phpunit --log-junit logs/unitreport.xml --configuration src/tests/phpunit.xml'
             }
         }
 
         // Add more stages as needed
     }
+
+    post {
+		always {
+			junit testResults: 'logs/unitreport.xml'
+		}
+	}
 
 }
