@@ -18,16 +18,19 @@ class LoginTest extends TestCase
         $redisMock = $this->getMockBuilder(\Predis\Client::class)
                           ->disableOriginalConstructor()
                           ->getMock();
+        
+        // Example: Mocking 'get' method to return null for IP block check
         $redisMock->expects($this->once())
-                  ->method('get')
-                  ->willReturn(null); // No IP block
+                  ->method('__call')
+                  ->with('get', ['blocked:127.0.0.1'])
+                  ->willReturn(null); // Mock return value for the 'get' method call
 
         // Mock MySQL behavior for database interaction
         $mysqliMock = $this->getMockBuilder(mysqli::class)
                            ->disableOriginalConstructor()
                            ->getMock();
         
-        // Mock result set for the query
+        // Example: Mocking MySQL prepare and get_result
         $resultMock = $this->getMockBuilder(stdClass::class)
                            ->setMethods(['fetch_assoc'])
                            ->getMock();
@@ -51,6 +54,7 @@ class LoginTest extends TestCase
         $this->assertEquals('ga_verify', $_SESSION['login_step']);
     }
 
+    // Add more test cases for different scenarios (invalid emails, passwords, CSRF token mismatch, etc.)
 }
 
 ?>
