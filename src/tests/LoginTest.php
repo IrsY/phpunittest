@@ -1,6 +1,6 @@
 <?php
 use PHPUnit\Framework\TestCase;
-
+require_once 'src/vendor/autoload.php';
 class LoginTest extends TestCase {
 
     public function testValidLogin() {
