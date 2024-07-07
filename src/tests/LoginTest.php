@@ -1,5 +1,6 @@
 <?php
 use PHPUnit\Framework\TestCase;
+use Predis\Client as PredisClient;
 
 class LoginTest extends TestCase {
 
@@ -45,7 +46,7 @@ class LoginTest extends TestCase {
                  ->willReturn($resultMock);
 
         // Prepare and execute the script under test
-        require_once 'src/process/process_login.php';
+        require_once 'src/process/rp';
         $conn = $this->getMockBuilder(stdClass::class)
                      ->setMethods(['prepare', 'close'])
                      ->getMock();
