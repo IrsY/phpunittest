@@ -7,7 +7,7 @@ require_once "src/sessions/sessiontimeout.php";
 $config = require_once('config.php');
 
 // Include predis
-require_once '../vendor/autoload.php';
+require_once 'src/vendor/autoload.php';
 
 // Include log function
 require_once "log.php";
