@@ -1,5 +1,6 @@
 <?php
 use PHPUnit\Framework\TestCase;
+require_once 'src/process/process_login.php';
 
 class LoginTest extends TestCase
 {
@@ -13,7 +14,6 @@ class LoginTest extends TestCase
         $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
 
         ob_start();
-        include 'process/process_login.php';
         $output = ob_get_clean();
 
         $this->assertEquals($_SESSION['customer_email'], 'test@example.com');
