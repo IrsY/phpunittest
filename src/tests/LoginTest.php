@@ -5,6 +5,9 @@ class LoginTest extends TestCase
 {
     protected function setUp(): void
     {
+        // Start output buffering to prevent premature output
+        ob_start();
+
         // Initialize session mock
         $_SESSION = [];
         session_start();
@@ -65,8 +68,9 @@ class LoginTest extends TestCase
         $GLOBALS['mysqli'] = $mysqliMock;
 
         // Call the script
-        ob_start();
         include('path/to/your/script.php');
+
+        // Capture and clean output buffer
         $output = ob_get_clean();
 
         // Assertions
