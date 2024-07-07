@@ -1,7 +1,7 @@
 <?php
 
 // Start session
-require_once "../sessions/sessiontimeout.php";
+require_once "src/sessions/sessiontimeout.php";
 
 // Include the config file
 $config = require_once('config.php');
@@ -80,7 +80,6 @@ if (!$_SERVER["REQUEST_METHOD"] === "POST" || !isset($_POST['csrf_token']) || $_
     // Validate CSRF token
     if (!isset($_POST['csrf_token'], $_SESSION['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         display_errorMsg('CSRF token mismatch');
-        return 0;
     }
 
     // Unset the CSRF token now that it's been checked
