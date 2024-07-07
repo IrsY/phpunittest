@@ -1,6 +1,6 @@
 <?php
 use PHPUnit\Framework\TestCase;
-use Predis\Client as PredisClient;
+use Predis\Client;
 
 class LoginTest extends TestCase {
 
@@ -11,7 +11,7 @@ class LoginTest extends TestCase {
         $_POST['csrf_token'] = 'valid_csrf_token';
 
         // Mock Redis client behavior
-        $redisMock = $this->createMock(new PredisClient::class);
+        $redisMock = $this->createMock(Client::class);
         $redisMock->expects($this->any())
                   ->method('get')
                   ->willReturn(false);
@@ -46,7 +46,7 @@ class LoginTest extends TestCase {
                  ->willReturn($resultMock);
 
         // Prepare and execute the script under test
-        require_once 'src/process/rp';
+        require_once 'path_to_your_login_script.php';
         $conn = $this->getMockBuilder(stdClass::class)
                      ->setMethods(['prepare', 'close'])
                      ->getMock();
