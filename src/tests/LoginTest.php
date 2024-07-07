@@ -13,7 +13,7 @@ class LoginTest extends TestCase
         $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
 
         ob_start();
-        include 'src/process/process_login.php';
+        include 'process/process_login.php';
         $output = ob_get_clean();
 
         $this->assertEquals($_SESSION['customer_email'], 'test@example.com');
