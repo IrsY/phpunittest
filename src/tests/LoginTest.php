@@ -1,76 +1,81 @@
 <?php
 use PHPUnit\Framework\TestCase;
-use Predis\Client;
 
-class LoginTest extends TestCase {
+class LoginTest extends TestCase
+{
+    protected function setUp(): void
+    {
+        // Initialize session mock
+        $_SESSION = [];
+        session_start();
 
-    public function testSuccessfulLogin() {
-        // Mock session variables
+        // Initialize other mocks or dependencies
+        // You may need to mock PredisClient and MySQL connection
+        // depending on your testing setup.
+    }
+
+    public function testValidLogin()
+    {
+        // Simulate form data
+        $_POST['csrf_token'] = 'mock_csrf_token';
         $_POST['customer_email'] = 'test@example.com';
-        $_POST['customer_pwd'] = 'validpassword';
-        $_POST['csrf_token'] = 'valid_csrf_token';
+        $_POST['customer_pwd'] = 'securepassword';
 
-        // Mock Redis client behavior
-        $redisMock = $this->createMock(Client::class);
-        $redisMock->expects($this->any())
+        // Mock PredisClient behavior
+        $redisMock = $this->getMockBuilder('Predis\Client')
+                          ->disableOriginalConstructor()
+                          ->getMock();
+        $redisMock->expects($this->exactly(1))
                   ->method('get')
                   ->willReturn(false);
         $redisMock->expects($this->once())
                   ->method('incr');
-        $redisMock->expects($this->once())
-                  ->method('expire');
+        // You would need to mock other methods like 'set' and 'expire' as well.
 
-        // Mock MySQL connection behavior
-        $mysqliMock = $this->getMockBuilder(\mysqli::class)
+        // Mock MySQL connection
+        $mysqliMock = $this->getMockBuilder('mysqli')
                            ->disableOriginalConstructor()
                            ->getMock();
-        $mysqliMock->expects($this->once())
-                   ->method('connect_error')
-                   ->willReturn(false);
-        $resultMock = $this->getMockBuilder(stdClass::class)
-                           ->setMethods(['fetch_assoc'])
+        $stmtMock = $this->getMockBuilder('mysqli_stmt')
+                         ->disableOriginalConstructor()
+                         ->getMock();
+        $resultMock = $this->getMockBuilder('mysqli_result')
+                           ->disableOriginalConstructor()
                            ->getMock();
         $resultMock->expects($this->once())
                    ->method('fetch_assoc')
-                   ->willReturn(['customer_id' => 1, 'customer_password' => password_hash('validpassword', PASSWORD_DEFAULT)]);
+                   ->willReturn(['customer_id' => 1, 'customer_password' => password_hash('securepassword', PASSWORD_DEFAULT)]);
 
-        $stmtMock = $this->getMockBuilder(stdClass::class)
-                         ->setMethods(['bind_param', 'execute', 'get_result', 'close'])
-                         ->getMock();
+        // Mock the prepare method of mysqli
+        $mysqliMock->expects($this->once())
+                   ->method('prepare')
+                   ->willReturn($stmtMock);
         $stmtMock->expects($this->once())
-                 ->method('bind_param');
+                 ->method('bind_param')
+                 ->with('s', $_POST['customer_email'])
+                 ->willReturn(true);
         $stmtMock->expects($this->once())
-                 ->method('execute');
+                 ->method('execute')
+                 ->willReturn(true);
         $stmtMock->expects($this->once())
                  ->method('get_result')
                  ->willReturn($resultMock);
 
-        // Prepare and execute the script under test
-        require_once 'path_to_your_login_script.php';
-        $conn = $this->getMockBuilder(stdClass::class)
-                     ->setMethods(['prepare', 'close'])
-                     ->getMock();
-        $conn->expects($this->once())
-             ->method('prepare')
-             ->willReturn($stmtMock);
-
+        // Replace the real mysqli instance with the mock
         $GLOBALS['mysqli'] = $mysqliMock;
-        $GLOBALS['redis'] = $redisMock;
-        $GLOBALS['conn'] = $conn;
 
-        ob_start(); // Capture output (headers and messages)
-        login_process(); // Call your login process function
-        $output = ob_get_clean(); // Get the captured output
+        // Call the script
+        ob_start();
+        include('path/to/your/script.php');
+        $output = ob_get_clean();
 
-        // Assert expected behavior
+        // Assertions
         $this->assertStringContainsString('Location: ../gaverify.php', $output);
-        $this->assertArrayHasKey('customer_email', $_SESSION);
+        // Additional assertions if needed based on your script output
+
+        // Check session variables
         $this->assertEquals('test@example.com', $_SESSION['customer_email']);
-        $this->assertArrayHasKey('login_step', $_SESSION);
         $this->assertEquals('ga_verify', $_SESSION['login_step']);
     }
-
-    // Additional tests for error cases, CSRF token mismatch, etc. can be added similarly
-
 }
 ?>
