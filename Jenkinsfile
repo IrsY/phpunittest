@@ -17,7 +17,7 @@ pipeline {
         stage('Run PHPUnit Tests') {
             steps {
                 // Run PHPUnit tests
-                sh 'vendor/bin/phpunit --configuration tests/phpunit.xml'
+                sh 'vendor/bin/phpunit --configuration src/tests/phpunit.xml'
             }
         }
 
