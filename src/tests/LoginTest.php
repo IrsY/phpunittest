@@ -12,6 +12,13 @@ class LoginTest extends TestCase
         $_SESSION = [];
         session_start();
 
+        // Check for any output before session_start
+        $output = ob_get_contents();
+        if (!empty($output)) {
+            ob_end_clean();
+            $this->fail('Output sent before session_start');
+        }
+
         // Initialize other mocks or dependencies
         // You may need to mock PredisClient and MySQL connection
         // depending on your testing setup.
