@@ -11,7 +11,7 @@ class LoginTest extends TestCase {
         $_POST['csrf_token'] = 'valid_csrf_token';
 
         // Mock Redis client behavior
-        $redisMock = $this->createMock(PredisClient::class);
+        $redisMock = $this->createMock(new PredisClient::class);
         $redisMock->expects($this->any())
                   ->method('get')
                   ->willReturn(false);
