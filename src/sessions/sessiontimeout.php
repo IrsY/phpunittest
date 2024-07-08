@@ -1,53 +1,58 @@
 <?php
-// Set session cookie parameters before starting the session
-if (session_status() === PHP_SESSION_NONE) {
-    $cookieParams = session_get_cookie_params();
-    session_set_cookie_params([
-        'lifetime' => 1800,
-        'path' => $cookieParams["path"],
-        'domain' => $cookieParams["domain"],
-        'secure' => true,  // Ensure cookies are sent over HTTPS
-        'httponly' => true,  // Make cookies accessible only through the HTTP protocol
-        'samesite' => 'Lax'  // Mitigate the risk of cross-origin information leakage
-    ]);
-    session_start();
-}
+use PHPUnit\Framework\TestCase;
 
-// Regenerate session ID regularly to prevent session fixation
-if (!isset($_SESSION['created'])) {
-    $_SESSION['created'] = time();
-} else if (time() - $_SESSION['created'] > 1800) { // 30 minutes
-    session_regenerate_id(true);  // Invalidate old session ID
-    $_SESSION['created'] = time();  // Update creation time
-}
-
-// Handle session timeout
-$inactive = 1800; // 30 minutes
-if (isset($_SESSION["token_time"]) && (time() - $_SESSION["token_time"] > $inactive)) {
-    // Properly destroy the session
-    session_unset(); // Unset $_SESSION variable for the run-time
-    session_destroy(); // Destroy session data in storage
-
-    // Clear the session cookie
-    if (ini_get("session.use_cookies")) {
-        $params = session_get_cookie_params();
-        setcookie(session_name(), '', time() - 42000,
-            $params["path"], $params["domain"],
-            $params["secure"], $params["httponly"]);
+class NavbarTest extends TestCase {
+    
+    public function testDropdownMenuItems() {
+        ob_start(); // Start output buffering to capture any output
+        
+        // Mock session start and set $_SESSION variables
+        $_SESSION = [];
+        $this->startSession();
+        
+        // Simulate capturing output of navbar
+        include 'src/components/nav.inc.php'; // Include the file containing your navbar HTML
+        $output = ob_get_clean(); // Clean (end) the output buffer
+        
+        // Test for existence of dropdown toggle
+        $this->assertStringContainsString('<a class="nav-link dropdown-toggle"', $output);
+        $this->assertStringContainsString('id="dropdown03"', $output);
+        
+        // Test for existence of dropdown menu
+        $this->assertStringContainsString('<ul class="dropdown-menu"', $output);
+        $this->assertStringContainsString('aria-labelledby="dropdown03"', $output);
+        
+        // Test each dropdown item
+        $this->assertStringContainsString('<a class="dropdown-item" href="barebone.php">Barebone</a>', $output);
+        $this->assertStringContainsString('<a class="dropdown-item" href="cables.php">Cables</a>', $output);
+        $this->assertStringContainsString('<a class="dropdown-item" href="keyboard.php">Keyboard</a>', $output);
+        $this->assertStringContainsString('<a class="dropdown-item" href="keycaps.php">Keycaps</a>', $output);
+        $this->assertStringContainsString('<a class="dropdown-item" href="switches.php">Switches</a>', $output);
+        
+        // Functional test for Barebone dropdown item
+        $this->assertRedirectsTo('barebone.php', 'Barebone');
+        $this->assertSessionVariableInitialized('csrf_token');
     }
-
-    header("Location: login.php");
-    exit();
-}
-$_SESSION['token_time'] = time();
-
-function display_errorMsg($message)
-{
-    if (!isset($_SESSION['errorMsg'])) {
-        $_SESSION['errorMsg'] = [];
+    
+    // Helper function to mock session_start()
+    protected function startSession() {
+        //if (session_status() === PHP_SESSION_NONE) {
+        //    session_start();
+        //}
+        $this->assertTrue(session_status() === PHP_SESSION_ACTIVE);
     }
-    $_SESSION['errorMsg'][] = $message;
-
+    
+    // Helper function to assert redirection
+    protected function assertRedirectsTo($url, $linkText) {
+        // Replace 'http://localhost/' with your base URL
+        $response = file_get_contents('https://mechkeys.ddns.net/' . $url);
+        $this->assertStringContainsString('<h1 class="title">' . $linkText, $response);
+    }
+    
+    // Helper function to assert session variable initialization
+    protected function assertSessionVariableInitialized($variableName) {
+        $this->assertArrayHasKey($variableName, $_SESSION);
+        $this->assertNotEmpty($_SESSION[$variableName]);
+    }
 }
-
 ?>
