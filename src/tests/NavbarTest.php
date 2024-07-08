@@ -32,7 +32,7 @@ class NavbarTest extends TestCase {
     // Helper function to assert redirection
     protected function assertRedirectsTo($url, $linkText) {
         $response = file_get_contents('https://mechkeys.ddns.net/' . $url); // Replace 'http://localhost/' with your base URL
-        $this->assertStringContainsString('<title>' . $linkText, $response); // Example check for page title containing link text
+        $this->assertStringContainsString('<h1 class="title">' . $linkText, $response); // Example check for page title containing link text
     }
     
     // Helper function to assert session variable initialization
