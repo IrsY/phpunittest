@@ -6,7 +6,7 @@ class NavbarTest extends TestCase {
     protected function setUp(): void {
         parent::setUp();
         ob_start(); // Start output buffering
-        session_start(); // Start session
+        //session_start(); // Start session
         
         // Set session variables
         if (!isset($_SESSION['csrf_token'])) {
