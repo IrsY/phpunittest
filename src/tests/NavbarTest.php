@@ -17,7 +17,7 @@ class NavbarTest extends TestCase {
     protected function tearDown(): void {
         parent::tearDown();
         session_unset(); // Unset all session variables
-        session_destroy(); // Destroy the session
+        //session_destroy(); // Destroy the session
         ob_end_clean(); // Clean (end) the output buffer
     }
     
