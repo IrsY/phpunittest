@@ -3,14 +3,27 @@ use PHPUnit\Framework\TestCase;
 
 class NavbarTest extends TestCase {
     
-    public function testDropdownMenuItems() {
+    protected function setUp(): void {
+        parent::setUp();
         ob_start(); // Start output buffering
-        $_SESSION = []; // Initialize session variables
+        session_start(); // Start session
         
+        // Set session variables
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
+    protected function tearDown(): void {
+        parent::tearDown();
+        session_unset(); // Unset all session variables
+        session_destroy(); // Destroy the session
+        ob_end_clean(); // Clean (end) the output buffer
+    }
+    
+    public function testDropdownMenuItems() {
         // Include the file containing your navbar HTML
         include 'src/components/nav.inc.php';
         
-        $output = ob_get_clean(); // Clean (end) the output buffer
+        $output = ob_get_clean(); // Clean the output buffer
         
         // Test assertions here
         $this->assertStringContainsString('<a class="nav-link dropdown-toggle"', $output);
@@ -30,7 +43,7 @@ class NavbarTest extends TestCase {
     
     // Helper function to assert redirection
     protected function assertRedirectsTo($url, $linkText) {
-        // Replace 'http://localhost/' with your base URL
+        // Replace 'https://mechkeys.ddns.net/' with your base URL
         $response = file_get_contents('https://mechkeys.ddns.net/' . $url);
         $this->assertStringContainsString('<h1 class="title">' . $linkText, $response);
     }
