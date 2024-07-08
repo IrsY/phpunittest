@@ -36,9 +36,9 @@ class NavbarTest extends TestCase {
     
     // Helper function to mock session_start()
     protected function startSession() {
-        //if (session_status() === PHP_SESSION_NONE) {
-        //    session_start();
-        //}
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         $this->assertTrue(session_status() === PHP_SESSION_ACTIVE);
     }
     
