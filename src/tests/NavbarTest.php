@@ -5,7 +5,7 @@ class NavbarTest extends TestCase {
     
     public function testDropdownMenuItems() {
         ob_start();
-        include 'index.php'; // Include the file containing your navbar HTML
+        include 'src/index.php'; // Include the file containing your navbar HTML
         $output = ob_get_clean();
         
         // Test for existence of dropdown toggle
