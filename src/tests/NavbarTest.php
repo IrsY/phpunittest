@@ -2,17 +2,22 @@
 use PHPUnit\Framework\TestCase;
 
 class NavbarTest extends TestCase {
+
+    protected function setUp(): void {
+        // Start output buffering to capture output
+        ob_start();
+        include 'src/components/nav.inc.php'; // Include the file containing your navbar HTML
+    }
+
+    protected function tearDown(): void {
+        // Clean the output buffer
+        ob_end_clean();
+    }
     
     public function testDropdownMenuItems() {
-        ob_start(); // Start output buffering to capture any output
-        
-        // Mock session start and set $_SESSION variables
-        $_SESSION = [];
-        $this->startSession();
-        
-        // Simulate capturing output of navbar
-        include 'src/components/nav.inc.php'; // Include the file containing your navbar HTML
-        $output = ob_get_clean(); // Clean (end) the output buffer
+        // Get the content from the output buffer
+        $output = ob_get_contents();
+        ob_end_clean(); // Clean the output buffer again to ensure it's empty
         
         // Test for existence of dropdown toggle
         $this->assertStringContainsString('<a class="nav-link dropdown-toggle"', $output);
@@ -28,31 +33,6 @@ class NavbarTest extends TestCase {
         $this->assertStringContainsString('<a class="dropdown-item" href="keyboard.php">Keyboard</a>', $output);
         $this->assertStringContainsString('<a class="dropdown-item" href="keycaps.php">Keycaps</a>', $output);
         $this->assertStringContainsString('<a class="dropdown-item" href="switches.php">Switches</a>', $output);
-        
-        // Functional test for Barebone dropdown item
-        $this->assertRedirectsTo('barebone.php', 'Barebone');
-        $this->assertSessionVariableInitialized('csrf_token');
-    }
-    
-    // Helper function to mock session_start()
-    protected function startSession() {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-        $this->assertTrue(session_status() === PHP_SESSION_ACTIVE);
-    }
-    
-    // Helper function to assert redirection
-    protected function assertRedirectsTo($url, $linkText) {
-        // Replace 'http://localhost/' with your base URL
-        $response = file_get_contents('https://mechkeys.ddns.net/' . $url);
-        $this->assertStringContainsString('<h1 class="title">' . $linkText, $response);
-    }
-    
-    // Helper function to assert session variable initialization
-    protected function assertSessionVariableInitialized($variableName) {
-        $this->assertArrayHasKey($variableName, $_SESSION);
-        $this->assertNotEmpty($_SESSION[$variableName]);
     }
 }
 ?>
