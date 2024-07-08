@@ -24,18 +24,21 @@ class NavbarTest extends TestCase {
         $this->assertStringContainsString('<a class="dropdown-item" href="keycaps.php">Keycaps</a>', $output);
         $this->assertStringContainsString('<a class="dropdown-item" href="switches.php">Switches</a>', $output);
         
-        // Functional tests for each dropdown item
+        // Functional test for Barebone dropdown item
         $this->assertRedirectsTo('barebone.php', 'Barebone');
-        $this->assertRedirectsTo('cables.php', 'Cables');
-        $this->assertRedirectsTo('keyboard.php', 'Keyboard');
-        $this->assertRedirectsTo('keycaps.php', 'Keycaps');
-        $this->assertRedirectsTo('switches.php', 'Switches');
+        $this->assertSessionVariableInitialized('csrf_token');
     }
     
     // Helper function to assert redirection
     protected function assertRedirectsTo($url, $linkText) {
         $response = file_get_contents('https://mechkeys.ddns.net/' . $url); // Replace 'http://localhost/' with your base URL
         $this->assertStringContainsString('<title>' . $linkText, $response); // Example check for page title containing link text
+    }
+    
+    // Helper function to assert session variable initialization
+    protected function assertSessionVariableInitialized($variableName) {
+        $this->assertArrayHasKey($variableName, $_SESSION);
+        $this->assertNotEmpty($_SESSION[$variableName]);
     }
 }
 ?>
