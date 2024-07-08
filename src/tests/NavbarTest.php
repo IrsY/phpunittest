@@ -4,14 +4,15 @@ use PHPUnit\Framework\TestCase;
 class NavbarTest extends TestCase {
     
     public function testDropdownMenuItems() {
+        ob_start(); // Start output buffering to capture any output
+        
         // Mock session start and set $_SESSION variables
         $_SESSION = [];
         $this->startSession();
         
         // Simulate capturing output of navbar
-        ob_start();
         include 'src/components/nav.inc.php'; // Include the file containing your navbar HTML
-        $output = ob_get_clean();
+        $output = ob_get_clean(); // Clean (end) the output buffer
         
         // Test for existence of dropdown toggle
         $this->assertStringContainsString('<a class="nav-link dropdown-toggle"', $output);
@@ -35,7 +36,9 @@ class NavbarTest extends TestCase {
     
     // Helper function to mock session_start()
     protected function startSession() {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         $this->assertTrue(session_status() === PHP_SESSION_ACTIVE);
     }
     
